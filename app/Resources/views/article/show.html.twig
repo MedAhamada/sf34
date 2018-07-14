@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    {% block stylesheets %}{% endblock %}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+</head>
+<body>
+<h1>Welcome to the Article:index page</h1>
+
+    <h3>{{ articles[index-1].title }}</h3>
+<p>{{ articles[index-1].content }} </p>
+
+{% if prec %}
+<a href="{{ path('app_article_show', {'id': prec}) }}">Précédant</a>
+{% endif %}
+&nbsp;&nbsp;
+{% if suiv %}
+<a href="{{ path('app_article_show', {'id': suiv}) }}">Suivant</a>
+{% endif %}
+</body>
+</html>

@@ -7,8 +7,9 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
 </head>
 <body>
-<h1>Hello Index</h1>
-
-<a href="{{ path('user_show_by_username', {'username': 342}) }}">Go to show</a>
+<h1>Welcome to the Article:index page</h1>
+{% for article in articles %}
+    <h3><a href="{{ path('app_article_show', {'id': article.id}) }}">{{ article.title }}</a></h3>
+{% endfor %}
 </body>
 </html>
