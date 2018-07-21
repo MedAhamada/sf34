@@ -2,15 +2,13 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>{% block title %}Welcome!{% endblock %}</title>
+    <title>{% block title %}Détails article  !{% endblock %}</title>
     {% block stylesheets %}{% endblock %}
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
 </head>
 <body>
-<h1>Welcome to the Article:new page</h1>
+<h2>Article créé avec succés</h2>
+<a href="{{ path('app_article_index') }} ">Retour vers pages articles</a>
 
-    <h3>{{ article.title }}</h3>
-<p>{{ article.content }} </p>
-<p>{{ article.createdAt | date('d-m-Y') }}</p>
 </body>
 </html>

@@ -7,15 +7,11 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
 </head>
 <body>
-<h2>{{ article.title }}  </h2>
+<h2>Modification réussie</h2>
+
+<h4>{{ article.title }}  </h4>
 <p>{{ article.content }}</p>
-<br>
-{% if prec %}
-    <a href="{{ path('app_article_show', {'id': prec}) }} ">Précédant</a>
-{% endif %}
-&nbsp;&nbsp;
-{% if suiv %}
-    <a href="{{ path('app_article_show', {'id': suiv}) }}">Suivant</a>
-{% endif %}
+
+<a href="{{ path('app_article_index') }} ">Retour vers pages articles</a>
 </body>
 </html>

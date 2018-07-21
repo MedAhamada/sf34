@@ -2,14 +2,35 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>{% block title %}Welcome!{% endblock %}</title>
-    {% block stylesheets %}{% endblock %}
+    <title>{% block title %}Liste des articles!{% endblock %}</title>
+    {% block stylesheets %}
+
+
+    {% endblock %}
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+
 </head>
 <body>
-<h1>Welcome to the Article:index page</h1>
-{% for article in articles %}
-    <h3><a href="{{ path('app_article_show', {'id': article.id}) }}">{{ article.title }}</a></h3>
-{% endfor %}
+<a href="{{ path('app_article_new') }}">Nouvel article</a><br>
+
+<table border="1">
+    <!-- <tr>
+        <td>Titre Article</td>
+        <td></td>
+    </tr> -->
+    {% for article in articles %}
+        <tr>
+            <td>
+                <a href="{{ path('app_article_show', {'id': article.id}) }}">
+                    <h4>{{ article.title }}</h4>
+                </a>
+            </td>
+            <td> <a href="{{ path('app_article_edit', {'id': article.id}) }}">Modifier</a> </td>
+            <td> <a href="{{ path('app_article_delete', {'id': article.id}) }}">Supprimer</a> </td>
+        </tr>
+    {% endfor %}
+</table>
+
+
 </body>
 </html>
