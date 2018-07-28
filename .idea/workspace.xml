@@ -7,7 +7,10 @@
       <change afterPath="$PROJECT_DIR$/app/Resources/views/category/show.html.twig" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/app/Resources/views/user/edit.html.twig" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/app/Resources/views/user/new.html.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composer.phar" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/AppBundle/Controller/CategoryController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/AppBundle/Form/ArticleType.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/AppBundle/Form/UserType.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Resources/views/article/new.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/app/Resources/views/article/new.html.twig" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Resources/views/article/show.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/app/Resources/views/article/show.html.twig" afterDir="false" />
@@ -124,7 +127,7 @@
         <entry file="file://$PROJECT_DIR$/app/Resources/views/article/show.html.twig">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="204">
-              <caret line="12" column="117" selection-start-line="12" selection-start-column="117" selection-end-line="12" selection-end-column="117" />
+              <caret line="12" selection-start-line="12" selection-end-line="12" />
               <folding>
                 <element signature="e#12#26#0#Twig" expanded="true" />
               </folding>
@@ -391,7 +394,7 @@
       <workItem from="1531665795319" duration="1207000" />
       <workItem from="1532012913602" duration="597000" />
       <workItem from="1532017638893" duration="17578000" />
-      <workItem from="1532783532059" duration="11713000" />
+      <workItem from="1532783532059" duration="11980000" />
     </task>
     <task id="LOCAL-00001" summary="Changements du 14-07-2018">
       <created>1531588691416</created>
@@ -421,11 +424,18 @@
       <option name="project" value="LOCAL" />
       <updated>1532784431444</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Changements du 28-07-2018">
+      <created>1532798667829</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1532798667829</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="58549000" />
+    <option name="totallyTimeSpent" value="58816000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1040" height="744" extended-state="6" />
@@ -482,7 +492,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Changements du 14-07-2018" />
     <MESSAGE value="Changements du 21-07-2018" />
-    <option name="LAST_COMMIT_MESSAGE" value="Changements du 21-07-2018" />
+    <MESSAGE value="Changements du 28-07-2018" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changements du 28-07-2018" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/NotifierBundle/Notifier.php" />
@@ -854,7 +865,7 @@
     <entry file="file://$PROJECT_DIR$/app/Resources/views/article/show.html.twig">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
-          <caret line="12" column="117" selection-start-line="12" selection-start-column="117" selection-end-line="12" selection-end-column="117" />
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
           <folding>
             <element signature="e#12#26#0#Twig" expanded="true" />
           </folding>
