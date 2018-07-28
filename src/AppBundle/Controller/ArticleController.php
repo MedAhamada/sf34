@@ -8,12 +8,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\EntityManagerInterface;
 use AppBundle\Entity\Article;
 
-
-
+/**
+ * Class ArticleController
+ * @package AppBundle\Controller
+ *
+ * @Route("/articles")
+ */
 class ArticleController extends Controller
 {
     /**
-     * @Route("/articles")
+     * @Route("/")
      *
      * @return Response
      *
@@ -29,7 +33,7 @@ class ArticleController extends Controller
     }
 
     /**
-     * @Route("/article/{id}", requirements={"id"="\d+"})
+     * @Route("/{id}", requirements={"id"="\d+"})
      *
      * @return Response
      */

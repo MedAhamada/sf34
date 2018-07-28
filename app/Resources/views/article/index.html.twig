@@ -1,36 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8" />
-    <title>{% block title %}Liste des articles!{% endblock %}</title>
-    {% block stylesheets %}
+{% extends "base.html.twig" %}
 
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <a class="btn btn-primary pull-right" href="{{ path('app_article_new') }}">Nouvel article</a>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-12">
 
-    {% endblock %}
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
-
-</head>
-<body>
-<a href="{{ path('app_article_new') }}">Nouvel article</a><br>
-
-<table border="1">
-    <!-- <tr>
-        <td>Titre Article</td>
-        <td></td>
-    </tr> -->
-    {% for article in articles %}
-        <tr>
-            <td>
-                <a href="{{ path('app_article_show', {'id': article.id}) }}">
-                    <h4>{{ article.title }}</h4>
-                </a>
-            </td>
-            <td> <a href="{{ path('app_article_edit', {'id': article.id}) }}">Modifier</a> </td>
-            <td> <a href="{{ path('app_article_delete', {'id': article.id}) }}">Supprimer</a> </td>
-        </tr>
-    {% endfor %}
-</table>
-
-
-</body>
-</html>
+            <table class="table">
+                <!-- <tr>
+                    <td>Titre Article</td>
+                    <td></td>
+                </tr> -->
+                {% for article in articles %}
+                    <tr>
+                        <td>
+                            <a href="{{ path('app_article_show', {'id': article.id}) }}">
+                                <h4>{{ article.title }}</h4>
+                            </a>
+                        </td>
+                        <td> <a href="{{ path('app_article_edit', {'id': article.id}) }}">Modifier</a> </td>
+                        <td> <a href="{{ path('app_article_delete', {'id': article.id}) }}">Supprimer</a> </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}

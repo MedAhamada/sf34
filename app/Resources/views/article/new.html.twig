@@ -1,14 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8" />
-    <title>{% block title %}Détails article  !{% endblock %}</title>
-    {% block stylesheets %}{% endblock %}
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
-</head>
-<body>
-<h2>Article créé avec succés</h2>
-<a href="{{ path('app_article_index') }} ">Retour vers pages articles</a>
+{% extends "base.html.twig" %}
 
-</body>
-</html>
+{% block body %}
+    <h2>Article créé avec succés</h2>
+    <a href="{{ path('app_article_index') }} ">Retour vers pages articles</a>
+{% endblock %}

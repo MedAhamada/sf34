@@ -1,17 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8" />
-    <title>{% block title %}Détails article {{ article.id }} !{% endblock %}</title>
-    {% block stylesheets %}{% endblock %}
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
-</head>
-<body>
-<h2>Modification réussie</h2>
+{% extends "base.html.twig" %}
 
-<h4>{{ article.title }}  </h4>
-<p>{{ article.content }}</p>
+{% block body %}
+    <h2>Modification réussie</h2>
 
-<a href="{{ path('app_article_index') }} ">Retour vers pages articles</a>
-</body>
-</html>
+    <h4>{{ article.title }}  </h4>
+    <p>{{ article.content }}</p>
+
+    <a href="{{ path('app_article_index') }} ">Retour vers pages articles</a>
+{% endblock %}
