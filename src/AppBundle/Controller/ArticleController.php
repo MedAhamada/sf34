@@ -2,11 +2,14 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Form\ArticleType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\EntityManagerInterface;
 use AppBundle\Entity\Article;
+use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * Class ArticleController
@@ -46,6 +49,7 @@ class ArticleController extends Controller
         $suiv=($id==$article_len) ? null : $id+1;
         $prec=($id==1) ? null : $id-1;
 
+
         return $this->render( 'article/show.html.twig', array(
             'article'=>$article,
             'prec'=>$prec,
@@ -58,15 +62,25 @@ class ArticleController extends Controller
      *
      * @return Response
      */
-    public function newAction(EntityManagerInterface $entityManager)
+    public function newAction(Request $request, EntityManagerInterface $entityManager)
     {
         $article = new Article();
-        $article->setTitle('Nouvel article');
-        $article->setContent('contenu du Nouvel article');
-        $article->setCreatedAt(new \DateTime);
-        $entityManager->persist($article);
-        $entityManager->flush();
-        return $this->render( 'article/new.html.twig', array());
+
+        $form = $this->createForm(ArticleType::class, $article);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()){
+
+            $entityManager->persist($article);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_article_index');
+        }
+
+        return $this->render( 'article/new.html.twig', array(
+            'new_form'  => $form->createView()
+        ));
     }
 
     /**

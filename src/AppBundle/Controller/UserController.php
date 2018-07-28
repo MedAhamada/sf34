@@ -2,8 +2,15 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\User;
+use AppBundle\Form\UserType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\VarDumper\VarDumper;
 
 /**
@@ -11,119 +18,129 @@ use Symfony\Component\VarDumper\VarDumper;
  */
 class UserController extends Controller
 {
+
     /**
+     * @param EntityManagerInterface $em
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
      * @Route("/", name="user_index")
      */
-    public function indexAction()
+    public function indexAction(EntityManagerInterface $em)
     {
-        // Récupérer tous les users de la base de données.
+        $users = $em
+            ->getRepository(User::class)
+            ->findAll();
 
-        return $this->render('user/index.html.twig', array(
-            // ...
+        return $this->render('user/index.html.twig', [
+            'users'    => $users
+        ]);
+    }
+
+    /**
+     * @param EntityManagerInterface $entityManager
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @Route("/new", name="user_new")
+     */
+    public function newAction(Request $request, EntityManagerInterface $entityManager)
+    {
+        $user = new User();
+
+        /*** Option 1: Sans les classes formulaire ****/
+        // $form = $this->createFormBuilder($user)
+        //     ->add('name', TextType::class)
+        //     ->add('email', EmailType::class)
+        //    ->add('submit', SubmitType::class)
+        //     ->getForm();
+
+        /*** Option 2: Les classes ***/
+
+        $form = $this->createForm(UserType::class, $user);
+
+        // Dire à Symfony de traiter la soumission du formulaire.
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()){
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            $indexURL = $this->generateUrl('user_index');
+            return $this->redirect($indexURL);
+        }
+
+        return $this->render('user/new.html.twig', array(
+            'new_form'  => $form->createView()
         ));
     }
 
     /**
-     * @Route("/show", name="user_show")
+     * @param Request $request
+     * @param $id
+     * @param EntityManagerInterface $entityManager
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     *
+     * @Route("/{id}/edit", name="user_edit", requirements={"id":"\d+"})
      */
-    public function showAction()
+    public function editAction(Request $request, $id, EntityManagerInterface $entityManager)
     {
-        $url = $this->exemple();
+        $user = $entityManager->getRepository(User::class)->find($id);
 
-        VarDumper::dump($url);
+        $form = $this->createFormBuilder($user)
+            ->add('name', TextType::class)
+            ->add('email', EmailType::class)
+            ->add('submit', SubmitType::class)
+            ->getForm();
 
-        return $this->render('user/show.html.twig', array(
-            // ...
-        ));
-    }
+        $form->handleRequest($request);
 
-    public function exemple()
-    {
-        $articles = [
-            [
-                'id'    => 1,
-                'title' => 'Titre 1',
-                'content'   => 'Exemple de contenu 1'
-            ],
-            [
-                'id'    => 2,
-                'title' => 'Titre 2',
-                'content'   => 'Exemple de contenu 1'
-            ],
-            [
-                'id'    => 3,
-                'title' => 'Titre 3',
-                'content'   => 'Exemple de contenu 1'
-            ],
-            [
-                'id'    => 4,
-                'title' => 'Titre 4',
-                'content'   => 'Exemple de contenu 1'
-            ],
-            [
-                'id'    => 5,
-                'title' => 'Titre 5',
-                'content'   => 'Exemple de contenu 1'
-            ],
-            [
-                'id'    => 6,
-                'title' => 'Titre 6',
-                'content'   => 'Exemple de contenu 1'
-            ],
-            [
-                'id'    => 7,
-                'title' => 'Titre 7',
-                'content'   => 'Exemple de contenu 1'
-            ],
-            [
-                'id'    => 8,
-                'title' => 'Titre 8',
-                'content'   => 'Exemple de contenu 1'
-            ],
-            [
-                'id'    => 9,
-                'title' => 'Titre 9',
-                'content'   => 'Exemple de contenu 1'
-            ],
-            [
-                'id'    => 10,
-                'title' => 'Titre 10',
-                'content'   => 'Exemple de contenu 1'
-            ],
-        ];
+        if ($form->isSubmitted() && $form->isValid()){
 
-        $username = 42;
+            $entityManager->flush();
 
-        $urlIndex = $this->generateUrl('user_show_by_username', array(
-            'username'  => $username,
-            'id'        => 45,
-            'location'  => "Marrakech"
-        ));
+            $indexURL = $this->generateUrl('user_index');
+            return $this->redirect($indexURL);
+        }
 
-        return $urlIndex;
-    }
-
-    /**
-     * @Route("/{username}/show", methods={"POST", "PUT", "GET"}, name="user_show_by_username", requirements={"username"="\d+"})
-     */
-    public function showByUsernameAction($username)
-    {
-        // Show user by username
-        return $this->render('user/show.html.twig', array(
-            // ...
+        return $this->render('user/edit.html.twig', array(
+            'edit_form' => $form->createView()
         ));
     }
 
     /**
-     * @Route("/edit/{username}", name="user_edit")
+     * @param $id
+     * @param EntityManagerInterface $entityManager
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     *
+     * @Route("/{id}/delete", name="user_delete", requirements={"id":"\d+"})
      */
-    public function editAction($username = "johndoe")
+    public function deleteAction($id, EntityManagerInterface $entityManager)
     {
-        VarDumper::dump($username);
+        $user = $entityManager->getRepository(User::class)->find($id);
 
-        return $this->render('user/show.html.twig', array(
-            // ...
-        ));
+        if (null !== $user){
+            $entityManager->remove($user);
+
+            $entityManager->flush();
+        }
+
+        $indexURL = $this->generateUrl('user_index');
+        return $this->redirect($indexURL);
     }
 
+    /**
+     * @param $id
+     * @param EntityManagerInterface $entityManager
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @Route("/{id}/show", name="user_show", requirements={"id":"\d+"})
+     */
+    public function showAction($id, EntityManagerInterface $entityManager)
+    {
+        $user = $entityManager->getRepository(User::class)->find($id);
+
+        return $this->render('user/show.html.twig', [
+            'user'  => $user
+        ]);
+    }
 }

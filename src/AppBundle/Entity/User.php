@@ -4,12 +4,16 @@ namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * User
  *
  * @ORM\Table(name="app_user")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
+ *
+ * @UniqueEntity(fields={"email"})
  */
 class User
 {
@@ -26,6 +30,7 @@ class User
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
+     * @Assert\Length(max="25", min="5")
      */
     private $name;
 
@@ -33,6 +38,7 @@ class User
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=255, unique=true)
+     * @Assert\Email()
      */
     private $email;
 
@@ -141,5 +147,10 @@ class User
     public function getArticles()
     {
         return $this->articles;
+    }
+
+    public function __toString()
+    {
+        return $this->name;
     }
 }

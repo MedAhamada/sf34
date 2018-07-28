@@ -1,0 +1,36 @@
+{# app/Resources/views/category/index.html.twig #}
+{% extends "base.html.twig" %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{{ path('category_new') }}" class="btn btn-primary pull-right">Add</a>
+        </div>
+        <div class="col-md-12">
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td>{{ category.id }}</td>
+                        <td>{{ category.name }}</td>
+                        <td>
+                            <a href="{{ path('category_edit', {'id': category.id}) }}" class="btn btn-primary">Edit</a>
+                            <a href="{{ path('category_show', {'id': category.id}) }}" class="btn btn-success">Show</a>
+                            <a href="{{ path('category_delete', {'id': category.id}) }}" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <p>No category in the database</p>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

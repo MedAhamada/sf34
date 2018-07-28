@@ -1,14 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8" />
-    <title>{% block title %}Welcome!{% endblock %}</title>
-    {% block stylesheets %}{% endblock %}
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
-</head>
-<body>
-<h1>Hello Show</h1>
-
-<a href="{{ path('user_index') }}">Page index</a>
-</body>
-</html>
+{# app/Resources/views/category/index.html.twig #}
+{% extends "base.html.twig" %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center">{{ user.name }}</h1>
+            <h2 class="text-center">{{ user.email }}</h2>
+        </div>
+    </div>
+{% endblock %}

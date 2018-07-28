@@ -202,4 +202,9 @@ class Article
     {
         return $this->categories;
     }
+
+    public function __toString()
+    {
+        return $this->title;
+    }
 }
