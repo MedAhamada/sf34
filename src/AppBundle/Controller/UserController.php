@@ -3,144 +3,134 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\User;
-use AppBundle\Form\UserType;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\VarDumper\VarDumper;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @Route("/users")
+ * User controller.
+ *
+ * @Route("user")
  */
 class UserController extends Controller
 {
-
     /**
-     * @param EntityManagerInterface $em
-     * @return \Symfony\Component\HttpFoundation\Response
+     * Lists all user entities.
      *
      * @Route("/", name="user_index")
+     * @Method("GET")
      */
-    public function indexAction(EntityManagerInterface $em)
+    public function indexAction()
     {
-        $users = $em
-            ->getRepository(User::class)
-            ->findAll();
+        $em = $this->getDoctrine()->getManager();
 
-        return $this->render('user/index.html.twig', [
-            'users'    => $users
-        ]);
+        $users = $em->getRepository('AppBundle:User')->findAll();
+
+        return $this->render('user/index.html.twig', array(
+            'users' => $users,
+        ));
     }
 
     /**
-     * @param EntityManagerInterface $entityManager
-     * @return \Symfony\Component\HttpFoundation\Response
+     * Creates a new user entity.
      *
      * @Route("/new", name="user_new")
+     * @Method({"GET", "POST"})
      */
-    public function newAction(Request $request, EntityManagerInterface $entityManager)
+    public function newAction(Request $request)
     {
         $user = new User();
-
-        /*** Option 1: Sans les classes formulaire ****/
-        // $form = $this->createFormBuilder($user)
-        //     ->add('name', TextType::class)
-        //     ->add('email', EmailType::class)
-        //    ->add('submit', SubmitType::class)
-        //     ->getForm();
-
-        /*** Option 2: Les classes ***/
-
-        $form = $this->createForm(UserType::class, $user);
-
-        // Dire à Symfony de traiter la soumission du formulaire.
+        $form = $this->createForm('AppBundle\Form\UserType', $user);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()){
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($user);
+            $em->flush();
 
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            $indexURL = $this->generateUrl('user_index');
-            return $this->redirect($indexURL);
+            return $this->redirectToRoute('user_show', array('id' => $user->getId()));
         }
 
         return $this->render('user/new.html.twig', array(
-            'new_form'  => $form->createView()
+            'user' => $user,
+            'form' => $form->createView(),
         ));
     }
 
     /**
-     * @param Request $request
-     * @param $id
-     * @param EntityManagerInterface $entityManager
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * Finds and displays a user entity.
      *
-     * @Route("/{id}/edit", name="user_edit", requirements={"id":"\d+"})
+     * @Route("/{id}", name="user_show")
+     * @Method("GET")
      */
-    public function editAction(Request $request, $id, EntityManagerInterface $entityManager)
+    public function showAction(User $user)
     {
-        $user = $entityManager->getRepository(User::class)->find($id);
+        $deleteForm = $this->createDeleteForm($user);
 
-        $form = $this->createFormBuilder($user)
-            ->add('name', TextType::class)
-            ->add('email', EmailType::class)
-            ->add('submit', SubmitType::class)
-            ->getForm();
+        return $this->render('user/show.html.twig', array(
+            'user' => $user,
+            'delete_form' => $deleteForm->createView(),
+        ));
+    }
 
-        $form->handleRequest($request);
+    /**
+     * Displays a form to edit an existing user entity.
+     *
+     * @Route("/{id}/edit", name="user_edit")
+     * @Method({"GET", "POST"})
+     */
+    public function editAction(Request $request, User $user)
+    {
+        $deleteForm = $this->createDeleteForm($user);
+        $editForm = $this->createForm('AppBundle\Form\UserType', $user);
+        $editForm->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()){
+        if ($editForm->isSubmitted() && $editForm->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
 
-            $entityManager->flush();
-
-            $indexURL = $this->generateUrl('user_index');
-            return $this->redirect($indexURL);
+            return $this->redirectToRoute('user_edit', array('id' => $user->getId()));
         }
 
         return $this->render('user/edit.html.twig', array(
-            'edit_form' => $form->createView()
+            'user' => $user,
+            'edit_form' => $editForm->createView(),
+            'delete_form' => $deleteForm->createView(),
         ));
     }
 
     /**
-     * @param $id
-     * @param EntityManagerInterface $entityManager
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * Deletes a user entity.
      *
-     * @Route("/{id}/delete", name="user_delete", requirements={"id":"\d+"})
+     * @Route("/{id}", name="user_delete")
+     * @Method("DELETE")
      */
-    public function deleteAction($id, EntityManagerInterface $entityManager)
+    public function deleteAction(Request $request, User $user)
     {
-        $user = $entityManager->getRepository(User::class)->find($id);
+        $form = $this->createDeleteForm($user);
+        $form->handleRequest($request);
 
-        if (null !== $user){
-            $entityManager->remove($user);
-
-            $entityManager->flush();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($user);
+            $em->flush();
         }
 
-        $indexURL = $this->generateUrl('user_index');
-        return $this->redirect($indexURL);
+        return $this->redirectToRoute('user_index');
     }
 
     /**
-     * @param $id
-     * @param EntityManagerInterface $entityManager
-     * @return \Symfony\Component\HttpFoundation\Response
+     * Creates a form to delete a user entity.
      *
-     * @Route("/{id}/show", name="user_show", requirements={"id":"\d+"})
+     * @param User $user The user entity
+     *
+     * @return \Symfony\Component\Form\Form The form
      */
-    public function showAction($id, EntityManagerInterface $entityManager)
+    private function createDeleteForm(User $user)
     {
-        $user = $entityManager->getRepository(User::class)->find($id);
-
-        return $this->render('user/show.html.twig', [
-            'user'  => $user
-        ]);
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('user_delete', array('id' => $user->getId())))
+            ->setMethod('DELETE')
+            ->getForm()
+        ;
     }
 }

@@ -1,10 +1,21 @@
-{% extends "base.html.twig" %}
+{% extends 'base.html.twig' %}
 
 {% block body %}
-    <h2>Modification réussie</h2>
+    <h1>Article edit</h1>
 
-    <h4>{{ article.title }}  </h4>
-    <p>{{ article.content }}</p>
+    {{ form_start(edit_form) }}
+        {{ form_widget(edit_form) }}
+        <input type="submit" value="Edit" />
+    {{ form_end(edit_form) }}
 
-    <a href="{{ path('app_article_index') }} ">Retour vers pages articles</a>
+    <ul>
+        <li>
+            <a href="{{ path('article_index') }}">Back to the list</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
 {% endblock %}

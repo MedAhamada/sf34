@@ -6,21 +6,22 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ArticleType extends AbstractType
+class CategoryType extends AbstractType
 {
     /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('title')->add('content')->add('createdAt')->add('author')->add('categories');
+        $builder
+            ->add('name');
     }/**
      * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'AppBundle\Entity\Article'
+            'data_class' => 'AppBundle\Entity\Category'
         ));
     }
 
@@ -29,7 +30,7 @@ class ArticleType extends AbstractType
      */
     public function getBlockPrefix()
     {
-        return 'appbundle_article';
+        return 'appbundle_category';
     }
 
 

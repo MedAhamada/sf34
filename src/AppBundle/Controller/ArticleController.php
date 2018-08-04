@@ -2,113 +2,148 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Form\ArticleType;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Doctrine\ORM\EntityManagerInterface;
 use AppBundle\Entity\Article;
-use Symfony\Component\VarDumper\VarDumper;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class ArticleController
- * @package AppBundle\Controller
+ * Article controller.
  *
- * @Route("/articles")
+ * @Route("article")
  */
 class ArticleController extends Controller
 {
     /**
-     * @Route("/")
+     * Lists all article entities.
      *
-     * @return Response
+     * @Route("/", name="article_index")
+     * @Method("GET")
      *
-     * L'envoi de EntityManagerInterface $entityManager comme param: permet de se lier à la BDsans avoir besoin de l'instancier=> avantage depuis symf 3.4 (ne marche pas sur version anciennes)
+     * @Security("ROLE_USER")
      */
-    public function indexAction(EntityManagerInterface $entityManager)
+    public function indexAction()
     {
-        $articles=$entityManager->getRepository( Article::class )->findAll();
+        $em = $this->getDoctrine()->getManager();
 
-        return $this->render( 'article/index.html.twig', array(
-            'articles'=>$articles
+        $articles = $em->getRepository('AppBundle:Article')->findAll();
+
+        return $this->render('article/index.html.twig', array(
+            'articles' => $articles,
         ));
     }
 
     /**
-     * @Route("/{id}", requirements={"id"="\d+"})
+     * Creates a new article entity.
      *
-     * @return Response
-     */
-    public function showAction($id, EntityManagerInterface $entityManager)
-    {
-        $article=$entityManager->getRepository( Article::class )->find($id);
-        $articles=$entityManager->getRepository( Article::class )->findAll();
-
-        $article_len=count($articles);
-        $suiv=($id==$article_len) ? null : $id+1;
-        $prec=($id==1) ? null : $id-1;
-
-
-        return $this->render( 'article/show.html.twig', array(
-            'article'=>$article,
-            'prec'=>$prec,
-            'suiv'=>$suiv
-        ));
-    }
-
-    /**
-     * @Route("/new")
+     * @Route("/new", name="article_new")
+     * @Method({"GET", "POST"})
      *
-     * @return Response
+     * @Security("ROLE_EDITOR")
      */
-    public function newAction(Request $request, EntityManagerInterface $entityManager)
+    public function newAction(Request $request)
     {
         $article = new Article();
-
-        $form = $this->createForm(ArticleType::class, $article);
-
+        $form = $this->createForm('AppBundle\Form\ArticleType', $article);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()){
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($article);
+            $em->flush();
 
-            $entityManager->persist($article);
-            $entityManager->flush();
+            $this->addFlash('warning', 'Votre opération a réussi');
 
-            return $this->redirectToRoute('app_article_index');
+            return $this->redirectToRoute('article_show', array('id' => $article->getId()));
         }
 
-        return $this->render( 'article/new.html.twig', array(
-            'new_form'  => $form->createView()
+        return $this->render('article/new.html.twig', array(
+            'article' => $article,
+            'form' => $form->createView(),
         ));
     }
 
     /**
-     * @Route("/edit/{id}")
+     * Finds and displays a article entity.
      *
-     * @return Response
+     * @Route("/{id}", name="article_show")
+     * @Method("GET")
+     *
+     * @Security("ROLE_USER")
      */
-    public function editAction(EntityManagerInterface $entityManager, $id)
+    public function showAction(Article $article)
     {
-        $old=$entityManager->getRepository(Article::class)->find($id);
-        $old->setTitle($old->getTitle().' modifié');
-        $old->setContent($old->getTitle().' modifié');
-        $entityManager->persist($old);
-        $entityManager->flush();
-        return $this->render( 'article/edit.html.twig', array(
-            'article'=>$old));
+        $deleteForm = $this->createDeleteForm($article);
+
+        return $this->render('article/show.html.twig', array(
+            'article' => $article,
+            'delete_form' => $deleteForm->createView(),
+        ));
     }
 
     /**
-     * @Route("/delete/{id}")
+     * Displays a form to edit an existing article entity.
      *
-     * @return Response
+     * @Route("/{id}/edit", name="article_edit")
+     * @Method({"GET", "POST"})
+     *
+     * @Security("ROLE_EDITOR")
      */
-    public function deleteAction(EntityManagerInterface $entityManager, $id)
+    public function editAction(Request $request, Article $article)
     {
-        $article=$entityManager->getRepository(Article::class)->find($id);
-        $entityManager->remove($article);
-        $entityManager->flush();
-        return $this->redirect($this->generateUrl("app_article_index"));
+        $deleteForm = $this->createDeleteForm($article);
+        $editForm = $this->createForm('AppBundle\Form\ArticleType', $article);
+        $editForm->handleRequest($request);
+
+        if ($editForm->isSubmitted() && $editForm->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
+
+            return $this->redirectToRoute('article_edit', array('id' => $article->getId()));
+        }
+
+        return $this->render('article/edit.html.twig', array(
+            'article' => $article,
+            'edit_form' => $editForm->createView(),
+            'delete_form' => $deleteForm->createView(),
+        ));
+    }
+
+    /**
+     * Deletes a article entity.
+     *
+     * @Route("/{id}", name="article_delete")
+     * @Method("DELETE")
+     *
+     * @Security("ROLE_ADMIN")
+     */
+    public function deleteAction(Request $request, Article $article)
+    {
+        $form = $this->createDeleteForm($article);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($article);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('article_index');
+    }
+
+    /**
+     * Creates a form to delete a article entity.
+     *
+     * @param Article $article The article entity
+     *
+     * @return \Symfony\Component\Form\Form The form
+     */
+    private function createDeleteForm(Article $article)
+    {
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('article_delete', array('id' => $article->getId())))
+            ->setMethod('DELETE')
+            ->getForm()
+        ;
     }
 }

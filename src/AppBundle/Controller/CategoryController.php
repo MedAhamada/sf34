@@ -3,109 +3,151 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Category;
-use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class CategoryController
- * @package AppBundle\Controller
+ * Category controller.
  *
- * @Route("/categories")
+ * @Route("category")
  */
 class CategoryController extends Controller
 {
-
     /**
-     * @param EntityManagerInterface $em
-     * @return \Symfony\Component\HttpFoundation\Response
+     * Lists all category entities.
      *
      * @Route("/", name="category_index")
+     * @Method("GET")
      */
-    public function indexAction(EntityManagerInterface $em)
+    public function indexAction()
     {
-        $categories = $em
-            ->getRepository(Category::class)
-            ->findAll();
+        $em = $this->getDoctrine()->getManager();
 
-        return $this->render('category/index.html.twig', [
-            'categories'    => $categories
-        ]);
+        $categories = $em->getRepository('AppBundle:Category')->findAll();
+
+        return $this->render('category/index.html.twig', array(
+            'categories' => $categories,
+        ));
     }
 
     /**
-     * @param EntityManagerInterface $entityManager
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * Creates a new category entity.
      *
      * @Route("/new", name="category_new")
+     * @Method({"GET", "POST"})
      */
-    public function newAction(EntityManagerInterface $entityManager)
+    public function newAction(Request $request)
     {
         $category = new Category();
-        $category->setName('Voyage ' . microtime());
+        $form = $this->createForm('AppBundle\Form\CategoryType', $category);
+        $form->handleRequest($request);
 
-        $entityManager->persist($category);
-        $entityManager->flush();
+        if ($form->isSubmitted() && $form->isValid()) {
 
-        $indexURL = $this->generateUrl('category_index');
-        return $this->redirect($indexURL);
-    }
+            try{
+                $category->setName('Travel - Update 1532790499.0533');
 
-    /**
-     * @param $id
-     * @param EntityManagerInterface $entityManager
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     *
-     * @Route("/{id}/edit", name="category_edit", requirements={"id":"\d+"})
-     */
-    public function editAction($id, EntityManagerInterface $entityManager)
-    {
-        $category = $entityManager->getRepository(Category::class)->find($id);
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($category);
+                $em->flush();
 
-        if (null !== $category){
-            $category->setName('Travel - Update ' . microtime(true));
+                $this->addFlash('success', 'Success: Tout est passé');
 
-            $entityManager->flush();
+                return $this->redirectToRoute('category_show', array('id' => $category->getId()));
+
+            }catch (\Exception $exception){
+
+                if ('prod' === $this->get('kernel')->getEnvironment()){
+                    $this->get('logger')->error($exception->getTraceAsString());
+                    $this->addFlash('danger', 'Oops ! Une erreur');
+                }
+                else{
+                    throw $exception;
+                }
+            }
         }
 
-        $indexURL = $this->generateUrl('category_index');
-        return $this->redirect($indexURL);
+        return $this->render('category/new.html.twig', array(
+            'category' => $category,
+            'form' => $form->createView(),
+        ));
     }
 
     /**
-     * @param $id
-     * @param EntityManagerInterface $entityManager
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * Finds and displays a category entity.
      *
-     * @Route("/{id}/delete", name="category_delete", requirements={"id":"\d+"})
+     * @Route("/{id}", name="category_show")
+     * @Method("GET")
      */
-    public function deleteAction($id, EntityManagerInterface $entityManager)
+    public function showAction(Category $category)
     {
-        $category = $entityManager->getRepository(Category::class)->find($id);
+        $deleteForm = $this->createDeleteForm($category);
 
-        if (null !== $category){
-            $entityManager->remove($category);
+        return $this->render('category/show.html.twig', array(
+            'category' => $category,
+            'delete_form' => $deleteForm->createView(),
+        ));
+    }
 
-            $entityManager->flush();
+    /**
+     * Displays a form to edit an existing category entity.
+     *
+     * @Route("/{id}/edit", name="category_edit")
+     * @Method({"GET", "POST"})
+     */
+    public function editAction(Request $request, Category $category)
+    {
+        $deleteForm = $this->createDeleteForm($category);
+        $editForm = $this->createForm('AppBundle\Form\CategoryType', $category);
+        $editForm->handleRequest($request);
+
+        if ($editForm->isSubmitted() && $editForm->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
+
+            return $this->redirectToRoute('category_edit', array('id' => $category->getId()));
         }
 
-        $indexURL = $this->generateUrl('category_index');
-        return $this->redirect($indexURL);
+        return $this->render('category/edit.html.twig', array(
+            'category' => $category,
+            'edit_form' => $editForm->createView(),
+            'delete_form' => $deleteForm->createView(),
+        ));
     }
 
     /**
-     * @param $id
-     * @param EntityManagerInterface $entityManager
-     * @return \Symfony\Component\HttpFoundation\Response
+     * Deletes a category entity.
      *
-     * @Route("/{id}/show", name="category_show", requirements={"id":"\d+"})
+     * @Route("/{id}", name="category_delete")
+     * @Method("DELETE")
      */
-    public function showAction($id, EntityManagerInterface $entityManager)
+    public function deleteAction(Request $request, Category $category)
     {
-        $category = $entityManager->getRepository(Category::class)->find($id);
+        $form = $this->createDeleteForm($category);
+        $form->handleRequest($request);
 
-        return $this->render('category/show.html.twig', [
-            'category'  => $category
-        ]);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($category);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('category_index');
+    }
+
+    /**
+     * Creates a form to delete a category entity.
+     *
+     * @param Category $category The category entity
+     *
+     * @return \Symfony\Component\Form\Form The form
+     */
+    private function createDeleteForm(Category $category)
+    {
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('category_delete', array('id' => $category->getId())))
+            ->setMethod('DELETE')
+            ->getForm()
+        ;
     }
 }

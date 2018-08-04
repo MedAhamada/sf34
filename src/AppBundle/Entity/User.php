@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use FOS\UserBundle\Model\User as BaseUser;
 
 /**
  * User
@@ -15,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @UniqueEntity(fields={"email"})
  */
-class User
+class User extends BaseUser
 {
     /**
      * @var int
@@ -24,7 +25,7 @@ class User
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
@@ -35,35 +36,19 @@ class User
     private $name;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="email", type="string", length=255, unique=true)
-     * @Assert\Email()
-     */
-    private $email;
-
-    /**
      * @var Article[]
      *
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Article", mappedBy="author")
      */
     private $articles;
 
-
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
     /**
      * Constructor
      */
     public function __construct()
     {
+        parent::__construct();
+
         $this->articles = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
@@ -89,30 +74,6 @@ class User
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Set email
-     *
-     * @param string $email
-     *
-     * @return User
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    /**
-     * Get email
-     *
-     * @return string
-     */
-    public function getEmail()
-    {
-        return $this->email;
     }
 
     /**
